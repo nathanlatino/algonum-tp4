@@ -1,0 +1,138 @@
+<!--Objet: Algo Num tp4-->
+<!--Date: 19 avril 2019-->
+
+<!--Tristan Seuret-->
+<!--Nathan Latino-->
+<!--Jonas Vallat-->
+<!--Sol Rosca-->
+
+<!doctype html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>AN2019_Labo4_EquipeB4</title>
+
+</head>
+
+<body>
+<div id="app">
+  <span>Samedi 30 mars 2019</span>
+  <h1>Algorithme numérique - Labo 4: Dérivation Numérique</h1>
+  <b>Groupe B4:</b>
+  <ul>
+    <li>Tristan Seuret</li>
+    <li>Nathan Latino</li>
+    <li>Jonas Vallat</li>
+    <li>Sol Rosca</li>
+  </ul>
+  <div>
+    <label>x</label>
+    <input v-model="x" type="range" max="100" min="0" step="1">
+    <input v-model="x" type="number" max="100" min="0" step="1">
+  </div>
+
+  <div>
+    <label>n</label>
+    <input v-model="n" type="range" min="0" step="1">
+    <input v-model="n" type="number" min="0" step="1">
+  </div>
+  <div>
+    <label>h</label>
+    <input v-model="h" type="range" max="1" min="0.1" step="0.005">
+    <input v-model="h" type="number" max="1" min="0" step="0.005">
+  </div>
+  <div class="graphique">
+    <div id="graphique" style=""></div>
+  </div>
+</div>
+
+<div>
+  <h1>Contexte</h1>
+  <p>
+    Le but de ce labo est le développement d'un programme
+    permettant de calculer et de visualiser la fonction cos(x)
+    ainsi que ses dérivées première et seconde sans utiliser de
+    fonction trigonométrique.
+  </p>
+  <h2>Développement</h2>
+  <p>
+    Pour ce labo, il a d'abord fallu trouver un moyen de recréer la fonction cos(x) à sans utiliser
+    les fonctions trigonométriques de JavaScript.
+    Pour cela, on utilisera la méthode de Taylor. On utilise ainsi une methode qui crée la fonction cos(x)
+    en calculant chaque élément de la methode de Taylor l'un après l'autre.
+    On calcule ansi jusqu'à ce que la valeur obtenue d'un élément soit considérée comme étant égale à 0.<br>
+
+    Il fallait ensuite créer une méthode retournant la dérivée d'une fonction. On utilise pour cela la methode
+    de Richardson.
+    Cette methode est très simplement implémentée, on utilise la formule telle quelle sans ajouter de
+    structure
+    particulière au code.
+    On utilise la même méthode pour trouver la dérivée seconde en l'appliquant sur la première dérivée.<br>
+
+    On a ainsi nos 3 fonction prêtes à être affichées, ce que l'on fait avec la bibliothèque plotly.
+  </p>
+  <h2>Conclusion</h2>
+  <p>
+    On constate sur le graphique que notre fonction cos() commence à diverger passé certaines valeurs (environ
+    -35 et 35 pour h=1) et que cela s'aggrave au-delà de ces dernières.
+    Cela affecte évidemment aussi les dérivées.
+    Cela est dû aux limitations matérielles et aux ordres d'erreur des fonction utilisées<br>
+    En dehors de cela, le graphique s'affiche comme il se doit et donne des résultats corrects et précis.
+  </p>
+</div>
+
+<script src="plotly-latest.min.js"></script>
+<script src="AN2019_Labo4_EquipeB4.js"></script>
+<script src="vue.js"></script>
+
+<script>
+  // Gestion du DOM:
+  let app = new Vue({
+    el: '#app',
+
+    data: () => ({
+      x: 32,
+      n: 100,
+      h: 0.05,
+    }),
+    watch: {
+      x(value) {this.solve();},
+      n(value) {this.solve();},
+      h(value) {this.solve();}
+    },
+    methods: {
+      solve() {
+        let data = new Cos(this.x, this.n, this.h);
+        this.drawGraph(data.values.x, data.values.cos.y, data.values.cos.label);
+        this.addToGraph(data.values.x, data.values.taylor.y, data.values.taylor.label);
+        this.addToGraph(data.values.x, data.values.firstDerivative.y, data.values.firstDerivative.label);
+        this.addToGraph(data.values.x, data.values.secondDerivative.y, data.values.secondDerivative.label);
+      },
+
+      drawGraph(xList, yList, label) {
+        let trace = {x: xList, y: yList, name: label};
+        let data = [trace];
+        let layout = {
+          label: 'Cosinus',
+          xaxis: {label: 'X', showgrid: true, zeroline: false},
+          yaxis: {label: 'Y', showline: false},
+        };
+        Plotly.newPlot(graphique, data, layout);
+      },
+
+      addToGraph(xList, yList, label) {
+        let trace = {x: xList, y: yList, name: label};
+        let data = [trace];
+        Plotly.addTraces(graphique, data);
+      },
+    },
+    mounted() {
+      this.solve();
+    },
+  });
+</script>
+
+
+</body>
+
+</html>
